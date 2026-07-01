@@ -11,5 +11,7 @@ class Country(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "iso_code": self.iso_code
+            "iso_code": self.iso_code,
+            "Code": self.iso_code,   # alias for frontend compatibility
+            "Title": self.name       # alias for frontend compatibility
         }

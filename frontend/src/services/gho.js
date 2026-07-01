@@ -27,7 +27,7 @@
 
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000"; // or your deployed backend URL
+const BASE_URL = "http://localhost:5001"; // or your deployed backend URL
 const api = axios.create({ baseURL: BASE_URL });
 
 // Countries
@@ -48,6 +48,13 @@ export async function updateCountry(id, data) {
 
 export async function deleteCountry(id) {
   const res = await api.delete(`/countries/${id}`);
+  return res.data;
+}
+
+// WHO GHO data proxied through our Flask backend to avoid CORS
+export async function getIndicatorData(code, countryCode) {
+  const params = countryCode ? { country: countryCode } : {};
+  const res = await api.get(`/who-data/${code}`, { params });
   return res.data;
 }
 

@@ -40,7 +40,33 @@ def create_favorite():
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
 
 
-# 3. DELETE A FAVORITE
+# 3. UPDATE A FAVORITE (PUT)
+@favorite_bp.route("/<int:id>", methods=["PUT"])
+def update_favorite(id):
+    favorite = Favorite.query.get(id)
+    if not favorite:
+        return jsonify({"error": "Not Found", "message": "Favorite record not found"}), 404
+
+    data = request.get_json() or {}
+
+    if "notes" in data:
+        favorite.notes = data["notes"].strip() or None
+
+    if "country_id" in data:
+        target_country = Country.query.get(data["country_id"])
+        if not target_country:
+            return jsonify({"error": "Not Found", "message": f"Country with ID {data['country_id']} does not exist"}), 404
+        favorite.country_id = data["country_id"]
+
+    try:
+        db.session.commit()
+        return jsonify(favorite.to_dict()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+
+
+# 4. DELETE A FAVORITE
 @favorite_bp.route("/<int:id>", methods=["DELETE"])
 def delete_favorite(id):
     favorite = Favorite.query.get(id)
