@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.extensions import db
+from app.auth import require_admin
 from app.models.country import Country
 
 country_bp = Blueprint("country", __name__)
@@ -12,6 +13,7 @@ def get_countries():
 
 # 2. CREATE A NEW COUNTRY (With Validation & Error Handling)
 @country_bp.route("/", methods=["POST"])
+@require_admin
 def create_country():
     data = request.get_json() or {}
     
@@ -44,6 +46,7 @@ def create_country():
 
 # 3. UPDATE A COUNTRY (PUT)
 @country_bp.route("/<int:id>", methods=["PUT"])
+@require_admin
 def update_country(id):
     country = Country.query.get(id)
     if not country:
@@ -78,10 +81,17 @@ def update_country(id):
 
 # 4. DELETE A COUNTRY (DELETE)
 @country_bp.route("/<int:id>", methods=["DELETE"])
+@require_admin
 def delete_country(id):
     country = Country.query.get(id)
     if not country:
         return jsonify({"error": "Not Found", "message": "Country not found"}), 404
+
+    if country.favorites:
+        return jsonify({"error": "Conflict", "message": "Cannot delete a country referenced by existing favorites"}), 409
+
+    if country.data_points:
+        return jsonify({"error": "Conflict", "message": "Cannot delete a country referenced by existing data points"}), 409
 
     try:
         db.session.delete(country)

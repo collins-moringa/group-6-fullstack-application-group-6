@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 
-const STATS = [
-  { value: "234", label: "Countries" },
-  { value: "3,059", label: "Indicators" },
-  { value: "3", label: "Ways to explore" },
-];
-
-function Hero({ onGetStarted }) {
+function Hero({ onGetStarted, countryCount = 0, indicatorCount = 0 }) {
   const crossLayer = useRef(null);
+
+  const stats = [
+    { value: String(countryCount), label: "Countries" },
+    { value: String(indicatorCount), label: "Indicators" },
+    { value: "3", label: "Ways to explore" },
+  ];
 
   useEffect(() => {
     const layer = crossLayer.current;
@@ -37,8 +37,8 @@ function Hero({ onGetStarted }) {
         <div className="hero-content">
           <h1 className="hero-title">Explore global health, country by country</h1>
           <p className="hero-subtitle">
-            Life expectancy, immunization, and disease burden across 234 countries
-            and 3,000+ indicators - all in one place.
+            Life expectancy, immunization, and disease burden across the countries
+            and indicators our team tracks - all in one place.
           </p>
           {onGetStarted && (
             <button className="hero-cta" onClick={onGetStarted}>
@@ -49,7 +49,7 @@ function Hero({ onGetStarted }) {
       </div>
 
       <div className="hero-stats">
-        {STATS.map(({ value, label }) => (
+        {stats.map(({ value, label }) => (
           <div className="hero-stat" key={label}>
             <div className="hero-stat-value">{value}</div>
             <div className="hero-stat-label">{label}</div>

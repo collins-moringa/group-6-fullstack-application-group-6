@@ -1,10 +1,14 @@
+import { NavLink } from "react-router-dom";
+
 const LINKS = [
-  { key: "dashboard", label: "Dashboard", icon: "▦" },
-  { key: "trends", label: "Trends", icon: "📈" },
-  { key: "compare", label: "Compare", icon: "⇄" },
+  { to: "/dashboard", label: "Dashboard", icon: "▦" },
+  { to: "/trends", label: "Trends", icon: "📈" },
+  { to: "/compare", label: "Compare", icon: "⇄" },
+  { to: "/favorites", label: "Favorites", icon: "★" },
+  { to: "/admin", label: "Admin", icon: "⚙" },
 ];
 
-function Navbar({ view, onNavigate }) {
+function Navbar() {
   return (
     <nav className="sidebar">
       <div className="sidebar-brand">
@@ -12,16 +16,16 @@ function Navbar({ view, onNavigate }) {
         <span className="sidebar-title">Global Health Observatory</span>
       </div>
       <ul className="sidebar-links">
-        {LINKS.map(({ key, label, icon }) => (
-          <li key={key}>
-            <button
-              className={`sidebar-link${view === key ? " active" : ""}`}
-              onClick={() => onNavigate(key)}
+        {LINKS.map(({ to, label, icon }) => (
+          <li key={to}>
+            <NavLink
+              to={to}
+              className={({ isActive }) => `sidebar-link${isActive ? " active" : ""}`}
               title={label}
             >
               <span className="sidebar-icon" aria-hidden="true">{icon}</span>
               <span className="sidebar-label">{label}</span>
-            </button>
+            </NavLink>
           </li>
         ))}
       </ul>

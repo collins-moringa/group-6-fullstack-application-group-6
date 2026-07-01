@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import TrendsHero from "../components/TrendsHero";
-import { getCountries, getIndicatorData } from "../services/gho";
+import { getCountries, getIndicators, getIndicatorData } from "../services/gho";
 import Loading from "../components/Loading";
 import ErrorMessage from "../components/ErrorMessage";
 import {
@@ -13,23 +14,12 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const INDICATORS = [
-  { IndicatorCode: "WHOSIS_000001", IndicatorName: "Life Expectancy at Birth" },
-  { IndicatorCode: "WHOSIS_000002", IndicatorName: "Healthy Life Expectancy (HALE) at Birth" },
-  { IndicatorCode: "MDG_0000000001", IndicatorName: "Under-5 Mortality Rate (per 1,000 live births)" },
-  { IndicatorCode: "MDG_0000000025", IndicatorName: "Infant Mortality Rate (per 1,000 live births)" },
-  { IndicatorCode: "WHS6_102",       IndicatorName: "Universal Health Coverage Index" },
-  { IndicatorCode: "NCDMORT3070",    IndicatorName: "Premature NCD Mortality (30–70 yrs, %)" },
-  { IndicatorCode: "NCD_BMI_30C",    IndicatorName: "Obesity Prevalence (%)" },
-  { IndicatorCode: "SA_0000001688",  IndicatorName: "Total Alcohol Consumption (per capita, litres)" },
-  { IndicatorCode: "MDG_0000000003", IndicatorName: "Maternal Mortality Ratio (per 100,000 live births)" },
-  { IndicatorCode: "SDGPM25",        IndicatorName: "PM2.5 Air Pollution (µg/m³)" },
-];
-
 function Trends() {
+  const [searchParams] = useSearchParams();
   const [countries, setCountries] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState("KEN");
-  const [selectedIndicator, setSelectedIndicator] = useState(INDICATORS[0].IndicatorCode);
+  const [indicators, setIndicators] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(searchParams.get("country") || "KEN");
+  const [selectedIndicator, setSelectedIndicator] = useState("");
   const [trendData, setTrendData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,6 +29,13 @@ function Trends() {
     getCountries()
       .then(setCountries)
       .catch(() => setCountryError(true));
+
+    getIndicators()
+      .then((data) => {
+        setIndicators(data);
+        if (data.length > 0) setSelectedIndicator(data[0].IndicatorCode);
+      })
+      .catch(() => setError("Could not load indicator list."));
   }, []);
 
   useEffect(() => {
@@ -75,7 +72,7 @@ function Trends() {
   const lowestValue  = values.length > 0 ? Math.min(...values) : "—";
 
   const selectedIndicatorName =
-    INDICATORS.find((i) => i.IndicatorCode === selectedIndicator)?.IndicatorName ?? "";
+    indicators.find((i) => i.IndicatorCode === selectedIndicator)?.IndicatorName ?? "";
 
   const trend =
     trendData.length > 1
@@ -121,14 +118,14 @@ function Trends() {
             value={selectedIndicator}
             onChange={(e) => setSelectedIndicator(e.target.value)}
           >
-            {INDICATORS.map((ind) => (
+            {indicators.map((ind) => (
               <option key={ind.IndicatorCode} value={ind.IndicatorCode}>
                 {ind.IndicatorName}
               </option>
             ))}
           </select>
           <small className="filter-help">
-            {INDICATORS.length} curated WHO indicators.
+            {indicators.length} curated WHO indicators.
           </small>
         </div>
       </div>
