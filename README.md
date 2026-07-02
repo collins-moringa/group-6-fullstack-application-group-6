@@ -43,21 +43,21 @@ owns and curates its own data instead of mirroring a third party.
 
 ```
 group-project/
-├── backend/            # Flask API (see backend/README.md)
+├── backend/           
 │   ├── app/
-│   │   ├── models/     # Country, Indicator, DataPoint, Favorite, User
-│   │   ├── routes/     # REST blueprints
+│   │   ├── models/    
+│   │   ├── routes/ 
 │   │   └── config.py
 │   ├── migrations/
 │   ├── seed.py
 │   └── run.py
-├── frontend/            # React app (see frontend/README.md)
+├── frontend/
 │   └── src/
 │       ├── components/
 │       ├── pages/
 │       │   └── admin/
 │       └── services/gho.js
-└── docs/                # Pitch, ERD, and other project docs
+└── docs/  
 ```
 
 ---
@@ -89,7 +89,7 @@ cp .env.example .env
 # edit .env: set DATABASE_URL to your local Postgres connection string
 # e.g. postgresql://postgres:password@localhost:5432/health_dashboard
 
-flask db upgrade                # creates the schema
+flask db upgrade               
 python seed.py                  # optional: seed demo countries/indicators/admin user
 
 python run.py
@@ -162,7 +162,7 @@ The app is deployed at **[groupsix.syknown.co.ke](https://groupsix.syknown.co.ke
 
 | Name | Responsibility |
 | --- | --- |
-| Collins Kiptoo (Lead) | Architecture, backend, database, integration, deployment |
+| Collins Kiptoo| Architecture, backend, database, integration, deployment |
 | Shawn Ochieng | Backend API |
 | Wasaa Abdalla | Frontend integration |
 | Samuel Wanjau | Frontend features, CRUD UI |
