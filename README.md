@@ -12,6 +12,7 @@ public API with our own **Flask + PostgreSQL** backend, so the app now
 owns and curates its own data instead of mirroring a third party.
 
 **Live app:** [groupsix.syknown.co.ke](https://groupsix.syknown.co.ke)
+**Youtube Link:** [https://youtu.be/g1677qL8Nm0](https://youtu.be/g1677qL8Nm0)
 
 ---
 
