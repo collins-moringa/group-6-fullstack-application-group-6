@@ -1,33 +1,47 @@
-import { useState, useEffect, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-import { getCountries, addFavorite } from "../services/gho";
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { getCountries, getIndicators, getFavorites, addFavorite } from "../services/gho";
+
+const LIFE_EXPECTANCY_CODE = "WHOSIS_000001";
 
 function WatchlistSidebar() {
-  const { token } = useContext(AuthContext);
+  const { isAuthenticated } = useAuth();
   const [countries, setCountries] = useState([]);
+  const [indicatorId, setIndicatorId] = useState(null);
   const [favorites, setFavorites] = useState(new Set());
   const [loadingId, setLoadingId] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!token) return;
-    getCountries()
-      .then((res) => setCountries(res))
-      .catch((err) => console.error("Failed to load countries:", err));
-  }, [token]);
+    if (!isAuthenticated) return;
+
+    Promise.all([getCountries(), getIndicators(), getFavorites()])
+      .then(([countryData, indicatorData, favoriteData]) => {
+        setCountries(countryData);
+
+        const lifeExpectancy = indicatorData.find(
+          (i) => i.code === LIFE_EXPECTANCY_CODE || i.IndicatorCode === LIFE_EXPECTANCY_CODE
+        );
+        if (!lifeExpectancy) return;
+        setIndicatorId(lifeExpectancy.id);
+
+        const alreadySaved = favoriteData
+          .filter((f) => f.indicator_id === lifeExpectancy.id)
+          .map((f) => f.country_id);
+        setFavorites(new Set(alreadySaved));
+      })
+      .catch((err) => console.error("Failed to load watchlist data:", err));
+  }, [isAuthenticated]);
 
   const handleSave = async (countryId) => {
-    if (!token) return;
+    if (!indicatorId) return;
     setLoadingId(countryId);
     setError(null);
 
     try {
-      await addFavorite({
-        country_id: Number(countryId),
-        indicator_id: 1 // Life Expectancy Indicator ID
-      }, token);
-      
-      setFavorites(prev => {
+      await addFavorite({ country_id: Number(countryId), indicator_id: indicatorId });
+
+      setFavorites((prev) => {
         const updated = new Set(prev);
         updated.add(countryId);
         return updated;
@@ -39,7 +53,7 @@ function WatchlistSidebar() {
     }
   };
 
-  if (!token) return null;
+  if (!isAuthenticated) return null;
 
   return (
     <div style={{
@@ -73,7 +87,7 @@ function WatchlistSidebar() {
               </span>
               <button
                 onClick={() => handleSave(c.id)}
-                disabled={isSaved || isLoading}
+                disabled={isSaved || isLoading || !indicatorId}
                 style={{
                   background: isSaved ? "#ecfdf5" : "#f3f4f6",
                   color: isSaved ? "#059669" : "#2563eb",
